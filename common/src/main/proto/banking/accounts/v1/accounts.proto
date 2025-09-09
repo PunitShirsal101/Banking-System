@@ -1,0 +1,44 @@
+syntax = "proto3";
+
+package banking.accounts.v1;
+
+option java_multiple_files = true;
+option java_package = "com.spunit.common.grpc.accounts.v1";
+option java_outer_classname = "AccountsProto";
+
+// Notes:
+// - Contract-first: This .proto is the source of truth for internal RPC.
+// - Deadlines: Clients MUST set deadlines; server enforces max per method.
+// - Interceptors: JWT validation, correlation IDs, and metrics are applied
+//   via grpc-spring-boot-starter (yidongnan). mTLS enforced at transport.
+
+service AccountsService {
+  rpc GetAccount(GetAccountRequest) returns (GetAccountResponse) {} // default deadline 200ms
+  rpc ListAccounts(ListAccountsRequest) returns (ListAccountsResponse) {} // default deadline 300ms
+}
+
+message Money {
+  string currency = 1; // ISO-4217 code
+  string amount = 2;   // decimal string with 2 fraction digits
+}
+
+message Account {
+  string id = 1;           // UUID
+  string status = 2;       // ACTIVE|SUSPENDED|CLOSED (string for evolvability)
+  Money balance = 3;
+  Money holdAmount = 4;
+  Money available = 5;
+}
+
+message GetAccountRequest { string id = 1; } // UUID
+message GetAccountResponse { Account account = 1; }
+
+message ListAccountsRequest {
+  int32 limit = 1;         // default 50, max 200 (validated at server)
+  string cursor = 2;       // base64 continuation token
+  string status = 3;       // optional status filter
+}
+message ListAccountsResponse {
+  repeated Account items = 1;
+  string nextCursor = 2;   // null/empty if end
+}

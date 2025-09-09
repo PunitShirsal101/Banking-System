@@ -1,0 +1,15 @@
+{
+  "type": "record",
+  "name": "AccountsBalanceUpdated",
+  "namespace": "com.spunit.avro.accounts",
+  "doc": "Topic: accounts.balance-updated | Compacted | Compatibility: BACKWARD. Latest balance snapshot per accountId.",
+  "fields": [
+    {"name": "eventId", "type": "string", "doc": "UUID"},
+    {"name": "occurredAt", "type": {"type": "long", "logicalType": "timestamp-millis"}},
+    {"name": "accountId", "type": "string", "doc": "UUID - partition key"},
+    {"name": "balanceMinor", "type": "long", "doc": "Current balance in minor units"},
+    {"name": "currency", "type": "string"},
+    {"name": "version", "type": "long", "doc": "Monotonic version for snapshot"},
+    {"name": "traceId", "type": ["null", "string"], "default": null}
+  ]
+}

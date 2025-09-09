@@ -1,0 +1,114 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: gateway
+  config:
+    import: 'optional:configserver:'
+  cloud:
+    gateway:
+      default-filters:
+        - RemoveResponseHeader=Server
+        - SecureHeaders
+      globalcors:
+        corsConfigurations:
+          '[/**]':
+            allowedOrigins: "*"
+            allowedMethods: [GET, POST, PUT, PATCH, DELETE, OPTIONS]
+            allowedHeaders: "*"
+            allowCredentials: false
+      routes:
+        - id: accounts
+          uri: lb://accounts
+          predicates:
+            - Path=/accounts/**
+          filters:
+            - RequestRateLimiter=key-resolver=#{@apiKeyResolver},redis-rate-limiter.replenishRate=10,redis-rate-limiter.burstCapacity=20
+        - id: customers
+          uri: lb://customers
+          predicates:
+            - Path=/customers/**
+          filters:
+            - RequestRateLimiter=key-resolver=#{@apiKeyResolver},redis-rate-limiter.replenishRate=10,redis-rate-limiter.burstCapacity=20
+        - id: ledger
+          uri: lb://ledger
+          predicates:
+            - Path=/ledger/**
+          filters:
+            - RequestRateLimiter=key-resolver=#{@apiKeyResolver},redis-rate-limiter.replenishRate=5,redis-rate-limiter.burstCapacity=10
+        - id: payments
+          uri: lb://payments
+          predicates:
+            - Path=/payments/**
+          filters:
+            - RequestRateLimiter=key-resolver=#{@apiKeyResolver},redis-rate-limiter.replenishRate=5,redis-rate-limiter.burstCapacity=10
+        - id: transfers
+          uri: lb://transfers
+          predicates:
+            - Path=/transfers/**
+          filters:
+            - RequestRateLimiter=key-resolver=#{@apiKeyResolver},redis-rate-limiter.replenishRate=5,redis-rate-limiter.burstCapacity=10
+        - id: cards
+          uri: lb://cards
+          predicates:
+            - Path=/cards/**
+          filters:
+            - RequestRateLimiter=key-resolver=#{@apiKeyResolver},redis-rate-limiter.replenishRate=5,redis-rate-limiter.burstCapacity=10
+        - id: statements
+          uri: lb://statements
+          predicates:
+            - Path=/statements/**
+          filters:
+            - RequestRateLimiter=key-resolver=#{@apiKeyResolver},redis-rate-limiter.replenishRate=5,redis-rate-limiter.burstCapacity=10
+        - id: authz
+          uri: lb://authz
+          predicates:
+            - Path=/authz/**
+          filters:
+            - RequestRateLimiter=key-resolver=#{@apiKeyResolver},redis-rate-limiter.replenishRate=10,redis-rate-limiter.burstCapacity=20
+        - id: notifications
+          uri: lb://notifications
+          predicates:
+            - Path=/notifications/**
+          filters:
+            - RequestRateLimiter=key-resolver=#{@apiKeyResolver},redis-rate-limiter.replenishRate=10,redis-rate-limiter.burstCapacity=20
+    discovery:
+      locator:
+        enabled: true
+        lowerCaseServiceId: true
+  data:
+    redis:
+      host: localhost
+      port: 6379
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost/issuer
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+  endpoint:
+    health:
+      probes:
+        enabled: true
+  health:
+    livenessstate:
+      enabled: true
+    readinessstate:
+      enabled: true
+  tracing:
+    sampling:
+      probability: 0.2
+  otlp:
+    tracing:
+      endpoint: ${OTLP_TRACING_ENDPOINT:http://localhost:4317}

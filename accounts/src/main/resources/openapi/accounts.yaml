@@ -1,0 +1,178 @@
+openapi: 3.0.3
+info:
+  title: Accounts API
+  version: 0.1.0
+  description: >-
+    Contract-first specification for Accounts service. Includes cursor-based pagination,
+    filtering, and RFC7807 error responses. This spec is the source of truth for server/client stubs.
+servers:
+  - url: https://api.example.com
+    description: Production (via Gateway)
+  - url: http://localhost:8080
+    description: Local
+paths:
+  /accounts:
+    get:
+      summary: List accounts
+      description: Cursor-based listing of accounts. Use `cursor` from the previous response to continue.
+      parameters:
+        - in: query
+          name: limit
+          schema: { type: integer, minimum: 1, maximum: 200, default: 50 }
+          description: Page size (max 200)
+        - in: query
+          name: cursor
+          schema: { type: string }
+          description: Base64-encoded continuation token
+        - in: query
+          name: status
+          schema:
+            type: string
+            enum: [ACTIVE, SUSPENDED, CLOSED]
+          description: Filter by account status
+      responses:
+        '200':
+          description: A page of accounts
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountPage'
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+        '500': { $ref: '#/components/responses/InternalError' }
+    post:
+      summary: Create an account
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateAccountRequest'
+      responses:
+        '201':
+          description: Created
+          headers:
+            Location:
+              schema: { type: string }
+              description: Resource URL of the created account
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Account'
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '500': { $ref: '#/components/responses/InternalError' }
+  /accounts/{id}:
+    get:
+      summary: Get account by ID
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200':
+          description: Account
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Account'
+        '404': { $ref: '#/components/responses/NotFound' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '500': { $ref: '#/components/responses/InternalError' }
+components:
+  schemas:
+    Money:
+      type: object
+      required: [currency, amount]
+      properties:
+        currency:
+          type: string
+          description: ISO-4217 currency code
+          example: USD
+        amount:
+          type: string
+          description: Decimal string with 2 fraction digits
+          example: "123.45"
+    Account:
+      type: object
+      required: [id, status, balance]
+      properties:
+        id: { type: string, format: uuid }
+        status:
+          type: string
+          enum: [ACTIVE, SUSPENDED, CLOSED]
+        balance:
+          $ref: '#/components/schemas/Money'
+        holdAmount:
+          $ref: '#/components/schemas/Money'
+        available:
+          $ref: '#/components/schemas/Money'
+    AccountPage:
+      type: object
+      required: [items]
+      properties:
+        items:
+          type: array
+          items: { $ref: '#/components/schemas/Account' }
+        nextCursor:
+          type: string
+          nullable: true
+          description: Cursor for the next page or null if end
+    CreateAccountRequest:
+      type: object
+      required: [currency, initialAmount]
+      properties:
+        currency:
+          type: string
+          description: ISO-4217 currency code
+          example: USD
+        initialAmount:
+          type: string
+          description: Decimal string with 2 fraction digits
+          example: "50.00"
+    Problem:
+      type: object
+      description: RFC7807 Problem Details
+      required: [type, title, status]
+      properties:
+        type: { type: string, format: uri }
+        title: { type: string }
+        status: { type: integer }
+        detail: { type: string }
+        instance: { type: string, format: uri }
+  responses:
+    BadRequest:
+      description: Bad Request
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/Problem' }
+    Unauthorized:
+      description: Unauthorized
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/Problem' }
+    NotFound:
+      description: Not Found
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/Problem' }
+    Conflict:
+      description: Conflict
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/Problem' }
+    TooManyRequests:
+      description: Too Many Requests
+      headers:
+        Retry-After: { schema: { type: integer }, description: Seconds to retry }
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/Problem' }
+    InternalError:
+      description: Internal Server Error
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/Problem' }

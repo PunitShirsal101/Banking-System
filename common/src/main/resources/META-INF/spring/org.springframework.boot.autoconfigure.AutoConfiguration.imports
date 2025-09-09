@@ -1,0 +1,4 @@
+com.spunit.common.web.CorrelationIdAutoConfiguration
+com.spunit.common.web.CommonWebAutoConfiguration
+com.spunit.common.security.CommonReactiveSecurityAutoConfiguration
+com.spunit.common.security.CommonMvcSecurityAutoConfiguration

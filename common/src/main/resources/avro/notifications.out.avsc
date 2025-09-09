@@ -1,0 +1,18 @@
+{
+  "type": "record",
+  "name": "NotificationOut",
+  "namespace": "com.spunit.avro.notifications",
+  "doc": "Topic: notifications.out | Compatibility: BACKWARD. Outbound notification request/event.",
+  "fields": [
+    {"name": "eventId", "type": "string", "doc": "UUID"},
+    {"name": "occurredAt", "type": {"type": "long", "logicalType": "timestamp-millis"}},
+    {"name": "tenantId", "type": ["null", "string"], "default": null},
+    {"name": "channel", "type": {"type": "enum", "name": "Channel", "symbols": ["EMAIL", "SMS", "PUSH"]}},
+    {"name": "recipient", "type": "string", "doc": "email/phone/device"},
+    {"name": "templateId", "type": ["null", "string"], "default": null},
+    {"name": "subject", "type": ["null", "string"], "default": null},
+    {"name": "body", "type": ["null", "string"], "default": null},
+    {"name": "attributes", "type": ["null", {"type": "map", "values": "string"}], "default": null},
+    {"name": "traceId", "type": ["null", "string"], "default": null}
+  ]
+}

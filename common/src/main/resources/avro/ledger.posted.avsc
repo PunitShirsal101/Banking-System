@@ -1,0 +1,18 @@
+{
+  "type": "record",
+  "name": "LedgerPosted",
+  "namespace": "com.spunit.avro.ledger",
+  "doc": "Topic: ledger.posted | Compatibility: FULL. Double-entry posting committed.",
+  "fields": [
+    {"name": "eventId", "type": "string", "doc": "UUID"},
+    {"name": "occurredAt", "type": {"type": "long", "logicalType": "timestamp-millis"}},
+    {"name": "journalId", "type": "string", "doc": "UUID"},
+    {"name": "postingId", "type": "string", "doc": "UUID"},
+    {"name": "accountId", "type": "string", "doc": "UUID"},
+    {"name": "amountMinor", "type": "long", "doc": "Amount in minor units (e.g., cents)"},
+    {"name": "currency", "type": "string"},
+    {"name": "direction", "type": {"type": "enum", "name": "Direction", "symbols": ["DEBIT", "CREDIT"]}},
+    {"name": "description", "type": ["null", "string"], "default": null},
+    {"name": "traceId", "type": ["null", "string"], "default": null}
+  ]
+}

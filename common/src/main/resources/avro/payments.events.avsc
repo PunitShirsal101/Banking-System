@@ -1,0 +1,15 @@
+{
+  "type": "record",
+  "name": "PaymentEvent",
+  "namespace": "com.spunit.contracts.payments",
+  "doc": "Topic: payments.events | Compatibility: BACKWARD. Events describing payment lifecycle transitions.",
+  "fields": [
+    { "name": "eventId", "type": {"type":"string"}, "doc": "Unique event id (UUID)" },
+    { "name": "paymentId", "type": {"type":"string"}, "doc": "Payment aggregate id (UUID)" },
+    { "name": "eventType", "type": {"type":"string"}, "doc": "Created|Authorized|Settled|Failed" },
+    { "name": "status", "type": {"type":"string"}, "doc": "PaymentStatus after applying event" },
+    { "name": "amount", "type": {"type":"string"}, "doc": "Decimal string with 2 fraction digits" },
+    { "name": "currency", "type": {"type":"string"}, "doc": "ISO-4217 code" },
+    { "name": "occurredAt", "type": {"type":"long", "logicalType": "timestamp-millis"} }
+  ]
+}
