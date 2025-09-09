@@ -7,4 +7,4 @@ Core services include:
 - common (shared utilities)
 
 ## Architecture Diagrams
-- System Context: [docs\diagrams\1-system-context.puml](docs\diagrams\1-system-context.puml)
+![System Context](docs\SystemContext.png)
