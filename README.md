@@ -1,10 +1,10 @@
-# Banking System (Microservices)
+# Banking System (Microservices) - In Progress
 
 This repository contains a sample banking system implemented with a microservices' architecture. 
 Core services include:
-- accounts, payments, transfers, ledger, customers, cards, statements, notifications
-- gateway (API Gateway), discovery-server (service registry), config-server (externalized config), authz (authorization)
-- common (shared utilities)
+- Accounts, Payments, Transfers, Ledger, Customers, Cards, Statements, Notifications
+- Gateway (API Gateway), Discovery-Server (Service Registry), Config-Server (Externalized Config), Authz (Authorization)
+- Common (Shared Utilities)
 
 ## Architecture Diagrams
 ![System Context](docs/SystemContext.png)
